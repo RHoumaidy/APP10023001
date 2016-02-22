@@ -78,43 +78,30 @@ public class FirstLeagueFragment extends Fragment {
             adapter.addFrag(matchFragment, "المباريات");
             adapter.addFrag(placesFragmend, "المراكز");
 
-            tabLayout = ((MainActivity) getActivity()).tabLayout;
 
         }
     }
 
-    @Override
-    public void onPause() {
-        tabLayout.setVisibility(View.GONE);
-        super.onPause();
-
-    }
-
-    @Override
-    public void onResume() {
-        tabLayout.setVisibility(View.VISIBLE);
-        super.onResume();
-
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-
-    }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_tabs_layout, container, false);
+        return view;
+
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         viewPager = (ViewPager) view.findViewById(R.id.viewPager);
+        tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
 
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(0);
         tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(0);
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -143,8 +130,5 @@ public class FirstLeagueFragment extends Fragment {
         dimensions.put("dayType", "weekday");
         ParseAnalytics.trackEventInBackground("open_league", dimensions);
         MyApplication.changeTabsFont(tabLayout);
-        return view;
-
     }
-
 }

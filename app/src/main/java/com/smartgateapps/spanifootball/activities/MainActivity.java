@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity
     public DrawerLayout drawer;
     private CoordinatorLayout coordinatorLayout;
 
-    public TabLayout tabLayout;
     public LinearLayout matchFilterLL;
     private int prevSelectedId = R.id.homeItemId;
 
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity
 
         ParseAnalytics.trackAppOpenedInBackground(getIntent());
 
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         matchFilterLL = (LinearLayout) findViewById(R.id.choseMathcFilterLL);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
@@ -217,8 +215,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
-
     }
 
 

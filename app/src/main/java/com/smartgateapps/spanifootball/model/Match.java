@@ -11,7 +11,9 @@ import android.util.Log;
 
 import com.smartgateapps.spanifootball.spani.MyApplication;
 
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -173,7 +175,7 @@ public class Match {
     public static List<Match> getAllNextMatches() {
         List<Match> resL = new ArrayList<>();
         Cursor c = MyApplication.dbr.query(TABLE_NAME, COLS, COL_DATE_TIME + ">=?",
-                new String[]{String.valueOf(System.currentTimeMillis())}, null, null, null);
+                new String[]{String.valueOf(MyApplication.getCurretnDateTime())}, null, null, null);
         if (c.moveToFirst()) {
             do {
                 Match res = new Match();
@@ -281,8 +283,8 @@ public class Match {
     }
 
     public int matchProgress() {
+        Long currTime = MyApplication.getCurretnDateTime();
 
-        Long currTime = System.currentTimeMillis();
         if (this.isHasBeenUpdated())
             return -1;
         if (this.getDateTime() > currTime)

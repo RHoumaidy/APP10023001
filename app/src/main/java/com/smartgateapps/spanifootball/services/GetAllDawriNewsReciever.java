@@ -41,7 +41,7 @@ public class GetAllDawriNewsReciever extends WakefulBroadcastReceiver {
                 PendingIntent.getBroadcast(MyApplication.APP_CTX, 33, intentActivationUpateNewsService, PendingIntent.FLAG_ONE_SHOT);
 
         MyApplication.alarmManager.set(
-                AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10*60*1000, pendingIntent);
+                AlarmManager.RTC_WAKEUP, MyApplication.getCurretnDateTime() + 10*60*1000, pendingIntent);
 
 
         newsListFragment1.urlExtention = MyApplication.SPANI_EXT_HOME;

@@ -311,7 +311,7 @@ public class MatchMatchFragment extends Fragment {
                                 Long matchId = Long.valueOf(matchLocationSplit[2].substring(0, matchLocationSplit[2].length() - 2));
 
                                 int progress;
-                                Long currTime = System.currentTimeMillis();
+                                Long currTime = MyApplication.getCurretnDateTime();
                                 Long matchDateTime;
                                 if (tds.get(1).getAllElements().size() == 1) {
 
@@ -322,7 +322,7 @@ public class MatchMatchFragment extends Fragment {
                                     else
                                         progress = 1;
                                 } else {
-                                    time = MyApplication.sourceTimeFormate.format(new Date(System.currentTimeMillis()));
+                                    time = MyApplication.sourceTimeFormate.format(new Date(currTime));
                                     progress = 0;
                                     matchDateTime = MyApplication.parseDateTime(date, time);
                                 }

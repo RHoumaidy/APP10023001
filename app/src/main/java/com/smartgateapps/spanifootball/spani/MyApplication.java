@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -77,9 +78,9 @@ public class MyApplication extends Application {
 
     public static HashMap<Integer, Integer> teamsLogos = new HashMap<>();
 
-    public static String ACTION_ACTIVATION = "ACTION_ACTIVATION";
-    public static String UPATE_MATCH = "UPATE_MATCH";
-    public static String DO_AT_2_AM = "DO_AT_2_AM";
+    public static String ACTION_ACTIVATION = "ACTION_ACTIVATION_SPANI";
+    public static String UPATE_MATCH = "UPDATE_MATCH_SPANI";
+    public static String DO_AT_2_AM = "DO_AT_2_AM_SPANI";
 
     public static NotificationManager notificationManager;
 
@@ -96,7 +97,7 @@ public class MyApplication extends Application {
     public static Long parseDateTime(String date, String time) {
 
         Long dateL = 0L;
-        Long timeL = System.currentTimeMillis();
+        Long timeL = MyApplication.getCurretnDateTime();
         try {
             dateL = sourceDateFormat.parse(date).getTime();
             timeL = sourceTimeFormate.parse(time).getTime();
@@ -105,10 +106,11 @@ public class MyApplication extends Application {
             e.printStackTrace();
         }
 
-        return dateL + timeL;
+        return dateL + timeL - getCurrentOffset();
     }
 
     public static String[] formatDateTime(Long dateTime) {
+        dateTime += getCurrentOffset();
         String date = sourceDateFormat.format(dateTime);
         String time = sourceTimeFormate.format(dateTime);
 
@@ -309,5 +311,16 @@ public class MyApplication extends Application {
         }
     }
 
+    public static Long getCurretnDateTime(){
+        Calendar rightNow = Calendar.getInstance();
+        return (rightNow.getTimeInMillis());
+    }
 
+    public static Long getCurrentOffset(){
+        Calendar rightNow = Calendar.getInstance();
+        long offset = rightNow.get(Calendar.ZONE_OFFSET) +
+                rightNow.get(Calendar.DST_OFFSET);
+
+        return offset;
+    }
 }

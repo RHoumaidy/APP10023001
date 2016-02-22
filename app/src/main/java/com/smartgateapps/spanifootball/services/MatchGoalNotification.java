@@ -45,10 +45,11 @@ public class MatchGoalNotification extends IntentService {
                 .setLargeIcon(icon)
                 .setStyle(new Notification.BigTextStyle())
                 .setAutoCancel(true)
-                .setContentIntent(PendingIntent.getActivity(MyApplication.APP_CTX,2,new Intent(MyApplication.APP_CTX,MainActivity.class),0))
+                .setContentIntent(PendingIntent.getActivity(MyApplication.APP_CTX, 2, new Intent(MyApplication.APP_CTX, MainActivity.class), 0))
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setVibrate(new long[]{0, 100, 500, 1000})
                 .build();
+
         MyApplication.notificationManager.notify(match.getId().intValue(), builder);
     }
 }

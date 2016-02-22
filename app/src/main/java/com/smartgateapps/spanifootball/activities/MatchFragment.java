@@ -295,6 +295,8 @@ public class MatchFragment extends Fragment {
                 if (child != null && mGestureDetector.onTouchEvent(e)) {
 
                     int pos = rv.getChildAdapterPosition(child);
+                    if (pos < 0)
+                        return false;
                     final Match currMatch = mathList.get(pos);
 
 
@@ -315,12 +317,14 @@ public class MatchFragment extends Fragment {
                     TextView goingMatchtxtV = (TextView) dialog.findViewById(R.id.matchGoingTxtV);
                     matchProgressBar = (ProgressBar) dialog.findViewById(R.id.matchProgressbar);
 
-                    if(!currMatch.isHasBeenUpdated())
+                    int matchProgress = currMatch.matchProgress();
+
+                    if (matchProgress == 0)
                         featchDate2(currMatch);
 
-                    if (currMatch.matchProgress() < 0)
+                    if (matchProgress < 0)
                         endMatchTxtV.setVisibility(View.VISIBLE);
-                    else if (currMatch.matchProgress() == 0)
+                    else if (matchProgress == 0)
                         goingMatchtxtV.setVisibility(View.VISIBLE);
 
 
@@ -340,7 +344,7 @@ public class MatchFragment extends Fragment {
                             .placeholder(R.drawable.water_mark)
                             .into(teamRImgV);
 
-                    if (currMatch.matchProgress()>=0)
+                    if (currMatch.matchProgress() >= 0)
                         chkdTxtV.setVisibility(View.VISIBLE);
                     chkdTxtV.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -498,7 +502,7 @@ public class MatchFragment extends Fragment {
                                 Long matchId = Long.valueOf(matchLocationSplit[2].substring(0, matchLocationSplit[2].length() - 2));
 
                                 int progress;
-                                Long currTime = System.currentTimeMillis();
+                                Long currTime = MyApplication.getCurretnDateTime();
                                 Long matchDateTime;
                                 if (tds.get(0).getAllElements().size() == 1) {
                                     time = tds.get(0).text();
@@ -508,7 +512,7 @@ public class MatchFragment extends Fragment {
                                     else
                                         progress = 1;
                                 } else {
-                                    time = MyApplication.sourceTimeFormate.format(new Date(System.currentTimeMillis()));
+                                    time = MyApplication.sourceTimeFormate.format(new Date(currTime));
                                     progress = 0;
                                     matchDateTime = MyApplication.parseDateTime(date, time);
                                 }
@@ -564,9 +568,9 @@ public class MatchFragment extends Fragment {
                                 match.setLeagueId(legue.getId().intValue());
                                 match.save();
 
-                                if (match.getDateTime() + 5 * 60 * 1000 > System.currentTimeMillis()) {
-                                    if (match.getDateTime() < System.currentTimeMillis())
-                                        match.setNotifyDateTime(System.currentTimeMillis() + 2 * 60 * 1000);
+                                if (match.getDateTime() + 2 * 60 * 1000 >currTime ) {
+                                    if (match.getDateTime() <= currTime)
+                                        match.setNotifyDateTime(currTime + 2 * 60 * 1000);
                                     match.registerMatchUpdateFirstTime();
                                     match.setHasBeenUpdated(false);
                                     match.update();
@@ -632,7 +636,7 @@ public class MatchFragment extends Fragment {
         webView2.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                webView2.loadUrl("javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>',"+match.getId()+");");
+                webView2.loadUrl("javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'," + match.getId() + ");");
             }
 
         });
@@ -646,109 +650,114 @@ public class MatchFragment extends Fragment {
 
         @JavascriptInterface
         @SuppressWarnings("unused")
-        public void showHTML(final String html,long mId) {
-            String htm = html;
-            Document doc = Jsoup.parse(html);
-            try {
+        public void showHTML(final String html, final long mId) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String htm = html;
+                    Document doc = Jsoup.parse(html);
+                    try {
 
-                Element mainContent = doc.getElementById("mainContent");
-                Element fullcontent = mainContent.getElementById("fullcontent");
-                Element matchesTable = fullcontent.getElementById("matchesTable");
-                Element tbody = matchesTable.getElementsByTag("tbody").first();
-                Match match = Match.load(mId);
+                        Element mainContent = doc.getElementById("mainContent");
+                        Element fullcontent = mainContent.getElementById("fullcontent");
+                        Element matchesTable = fullcontent.getElementById("matchesTable");
+                        Element tbody = matchesTable.getElementsByTag("tbody").first();
+                        Match match = Match.load(mId);
 
-                Element tt = tbody.getElementsByClass("tt").first();
-                if (tt != null && tt.getAllElements().size() > 1) {// the match is going ...
-                    String resultR;
-                    String resultL;
-                    String resultReX;
-                    String resultLeX;
+                        Element jm5x3 = tbody.getElementById("jm5x3");
+                        Element colorBlue = jm5x3.getElementsByAttributeValue("color", "blue").first();
 
-                    Element jm5x3 = tbody.getElementById("jm5x3");
-                    Element tdRes = jm5x3.getElementsByTag("span").first();
-                    Element tdResEx = jm5x3.getElementsByTag("div").first();
+                        if (colorBlue != null) {// the match is going ...
+                            String resultR;
+                            String resultL;
+                            String resultReX;
+                            String resultLeX;
 
-                    resultR = Html.fromHtml(tdRes.text()).toString();
-                    resultL = resultR.split(":")[0].replaceAll("\\s+", "");
-                    resultR = resultR.split(":")[1].replaceAll("\\s+", "");
+                            Element tdRes = jm5x3.getElementsByTag("span").first();
+                            Element tdResEx = jm5x3.getElementsByTag("div").first();
 
-                    if (tdResEx != null) {
-                        resultReX = Html.fromHtml(tdResEx.text()).toString();
-                        resultLeX = resultReX.split(":")[0].replaceAll("\\s+", "");
-                        resultReX = resultReX.split(":")[1].replaceAll("\\s+", "");
-                        int resRex = Integer.valueOf(resultReX);
-                        int resLeX = Integer.valueOf(resultLeX);
-                        int resR = Integer.valueOf(resultR);
-                        int resL = Integer.valueOf(resultR);
+                            resultR = Html.fromHtml(tdRes.text()).toString();
+                            resultL = resultR.split(":")[0].replaceAll("\\s+", "");
+                            resultR = resultR.split(":")[1].replaceAll("\\s+", "");
 
-                        resultR = resR + resRex + "";
-                        resultL = resL + resLeX + "";
+                            if (tdResEx != null) {
+                                resultReX = Html.fromHtml(tdResEx.text()).toString();
+                                resultLeX = resultReX.split(":")[0].replaceAll("\\s+", "");
+                                resultReX = resultReX.split(":")[1].replaceAll("\\s+", "");
+                                int resRex = Integer.valueOf(resultReX);
+                                int resLeX = Integer.valueOf(resultLeX);
+                                int resR = Integer.valueOf(resultR);
+                                int resL = Integer.valueOf(resultR);
+
+                                resultR = resR + resRex + "";
+                                resultL = resL + resLeX + "";
+                            }
+
+                            if (!resultL.equalsIgnoreCase(match.getResultL()) || !resultR.equalsIgnoreCase(match.getResultR())) {
+                                Toast.makeText(MyApplication.APP_CTX, "غوووول \n" + match.getTeamL().getTeamName() + " x " + match.getTeamR().getTeamName() +
+                                        "\n" + match.getResultL() + "-" + match.getResultR(), Toast.LENGTH_LONG).show();
+                            }
+
+                            match.setResultL(resultL);
+                            match.setResultR(resultR);
+                            match.update();
+
+
+                        } else { // the match eighter done or have not began yet
+                            String resultR;
+                            String resultL;
+
+                            String resultReX;
+                            String resultLeX;
+
+                            Element tdRes = jm5x3.getElementsByTag("span").first();
+                            Element tdResEx = jm5x3.getElementsByTag("div").first();
+
+                            resultR = Html.fromHtml(tdRes.text()).toString();
+                            resultL = resultR.split(":")[0].replaceAll("\\s+", "");
+                            resultR = resultR.split(":")[1].replaceAll("\\s+", "");
+
+                            if (tdResEx != null) {
+                                resultReX = Html.fromHtml(tdResEx.text()).toString();
+                                resultLeX = resultReX.split(":")[0].replaceAll("\\s+", "");
+                                resultReX = resultReX.split(":")[1].replaceAll("\\s+", "");
+                                int resRex = Integer.valueOf(resultReX);
+                                int resLeX = Integer.valueOf(resultLeX);
+                                int resR = Integer.valueOf(resultR);
+                                int resL = Integer.valueOf(resultR);
+
+                                resultR = resR + resRex + "";
+                                resultL = resL + resLeX + "";
+                            }
+
+
+                            if (!(resultR.equalsIgnoreCase("--") || resultL.equalsIgnoreCase("--"))) {
+                                match.setResultL(resultL);
+                                match.setResultR(resultR);
+                                match.setHasBeenUpdated(true);
+                                match.update();
+                            }
+
+
+                        }
+                        if (dialog != null && dialog.isShowing()) {
+                            TextView resultRtxtV = (TextView) dialog.findViewById(R.id.matchResultRTxtV);
+                            TextView resultLtxtV = (TextView) dialog.findViewById(R.id.matchResultLTxtV);
+                            resultLtxtV.setText(match.getResultL());
+                            resultRtxtV.setText(match.getResultR());
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                    if(!resultL.equalsIgnoreCase(match.getResultL()) || !resultR.equalsIgnoreCase(match.getResultR())){
-                        Toast.makeText(MyApplication.APP_CTX,"غوووول \n"+match.getTeamL().getTeamName() +" x "+match.getTeamR().getTeamName()+
-                        "\n"+match.getResultL()+"-"+match.getResultR(),Toast.LENGTH_LONG).show();
-                    }
-
-                    match.setResultL(resultL);
-                    match.setResultR(resultR);
-                    match.update();
-
-
-                } else { // the match eighter done or have not began yet
-                    String resultR;
-                    String resultL;
-
-                    String resultReX;
-                    String resultLeX;
-
-                    Element jm5x3 = tbody.getElementById("jm5x3");
-                    Element tdRes = jm5x3.getElementsByTag("span").first();
-                    Element tdResEx = jm5x3.getElementsByTag("div").first();
-
-                    resultR = Html.fromHtml(tdRes.text()).toString();
-                    resultL = resultR.split(":")[0].replaceAll("\\s+", "");
-                    resultR = resultR.split(":")[1].replaceAll("\\s+", "");
-
-                    if (tdResEx != null) {
-                        resultReX = Html.fromHtml(tdResEx.text()).toString();
-                        resultLeX = resultReX.split(":")[0].replaceAll("\\s+", "");
-                        resultReX = resultReX.split(":")[1].replaceAll("\\s+", "");
-                        int resRex = Integer.valueOf(resultReX);
-                        int resLeX = Integer.valueOf(resultLeX);
-                        int resR = Integer.valueOf(resultR);
-                        int resL = Integer.valueOf(resultR);
-
-                        resultR = resR + resRex + "";
-                        resultL = resL + resLeX + "";
-                    }
-
-
-                    if (!(resultR.equalsIgnoreCase("--") || resultL.equalsIgnoreCase("--"))) {
-                        match.setResultL(resultL);
-                        match.setResultR(resultR);
-                        match.setHasBeenUpdated(true);
-                        match.update();
-                    }
-
-
+                    matchProgressBar.setVisibility(View.GONE);
+                    mathList.clear();
+                    Stage s = ((Stage) stageSpinner.getSelectedItem());
+                    mathList.addAll(s.getAllMatches());
+                    adapter.notifyDataSetChanged();
                 }
-                if(dialog != null && dialog.isShowing()){
-                    TextView resultRtxtV = (TextView) dialog.findViewById(R.id.matchResultRTxtV);
-                    TextView resultLtxtV = (TextView) dialog.findViewById(R.id.matchResultLTxtV);
-                    resultLtxtV.setText(match.getResultL());
-                    resultRtxtV.setText(match.getResultR());
-                }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            matchProgressBar.setVisibility(View.GONE);
-            mathList.clear();
-            Stage s = ((Stage) stageSpinner.getSelectedItem());
-            mathList.addAll(s.getAllMatches());
-            adapter.notifyDataSetChanged();
+            });
         }
-
     }
 }

@@ -137,29 +137,8 @@ public class NewsListFragment extends android.support.v4.app.Fragment {
     }
 
     @Override
-    public void onAttach(final Activity activity) {
-        super.onAttach(activity);
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBarTxtV.setText(waiting[idx++]);
-                        idx %= 4;
-                    }
-                });
-            }
-        };
-        timer.scheduleAtFixedRate(timerTask, 0, 800);
-
-
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-
 
         if (allNews.size() == 0) {
             List<News> tmp;
@@ -172,6 +151,7 @@ public class NewsListFragment extends android.support.v4.app.Fragment {
             else
                 featchData();
         }
+        adapter.notifyDataSetChanged();
 
     }
 
@@ -235,7 +215,7 @@ public class NewsListFragment extends android.support.v4.app.Fragment {
             lnLayoutMgr = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(lnLayoutMgr);
         recyclerView.setAdapter(adapter);
-
+        adapter.notifyDataSetChanged();
 
         final GestureDetector mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
             @Override
