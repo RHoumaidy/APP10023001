@@ -225,6 +225,8 @@ public class NewsDetailsActivity extends AppCompatActivity implements AppBarLayo
         dateTxtView = (TextView) findViewById(R.id.newsDetailDateTxtV);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         dateTxtView.setText("");
+        TextView releatedNewsTitle = (TextView)findViewById(R.id.relatedNewsTitleTxtV);
+        releatedNewsTitle.setTypeface(MyApplication.font);
 
         newsToolBarTitleTxtV.setTypeface(MyApplication.font);
         newsTitleTxtV.setTypeface(MyApplication.font);

@@ -164,6 +164,7 @@
                 app:contentPadding="7dp">
 
                 <TextView
+                    android:id="@+id/relatedNewsTitleTxtV"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="مواضيع ذات صلة "

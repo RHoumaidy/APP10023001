@@ -18,6 +18,7 @@ import com.smartgateapps.spanifootball.spani.MyApplication;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class NewsListFragmentBackground {
     public int leaguId;
 
     public NewsListFragmentBackground() {
+
         webView1 = new WebView(MyApplication.APP_CTX);
         webView1.getSettings().setJavaScriptEnabled(true);
         webView1.getSettings().setLoadsImagesAutomatically(false);
@@ -49,8 +51,10 @@ public class NewsListFragmentBackground {
         webView1.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                number++;
                 webView1.loadUrl(
-                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'," +
+                                0+");");
                 featchData2();
             }
 
@@ -58,18 +62,21 @@ public class NewsListFragmentBackground {
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 number++;
+                featchData2();
             }
 
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
                 number++;
+                featchData2();
             }
 
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 super.onReceivedSslError(view, handler, error);
                 number++;
+                featchData2();
             }
         });
 
@@ -80,8 +87,10 @@ public class NewsListFragmentBackground {
         webView2.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                number++;
                 webView2.loadUrl(
-                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'," +
+                                1+");");
                 featchData3();
             }
 
@@ -89,18 +98,21 @@ public class NewsListFragmentBackground {
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
                 number++;
+                featchData3();
             }
 
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
                 number++;
+                featchData3();
             }
 
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 super.onReceivedSslError(view, handler, error);
                 number++;
+                featchData3();
             }
         });
 
@@ -111,8 +123,10 @@ public class NewsListFragmentBackground {
         webView3.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                number++;
                 webView3.loadUrl(
-                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+                        "javascript:window.HtmlViewer.showHTML('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'," +
+                                2+");");
             }
 
             @Override
@@ -145,7 +159,7 @@ public class NewsListFragmentBackground {
             webView1.loadUrl(url);
         } else {
             number++;
-            if (number == 4)
+            if (number == 3)
                 GetAllDawriNewsReciever.completeWakefulIntent(GetAllDawriNewsReciever.instance.intent);
 
         }
@@ -161,7 +175,7 @@ public class NewsListFragmentBackground {
             webView2.loadUrl(url);
         } else {
             number++;
-            if (number == 4)
+            if (number == 3)
                 GetAllDawriNewsReciever.completeWakefulIntent(GetAllDawriNewsReciever.instance.intent);
 
         }
@@ -177,7 +191,7 @@ public class NewsListFragmentBackground {
             webView3.loadUrl(url);
         } else {
             number++;
-            if (number == 4)
+            if (number == 3)
                 GetAllDawriNewsReciever.completeWakefulIntent(GetAllDawriNewsReciever.instance.intent);
 
         }
@@ -189,16 +203,18 @@ public class NewsListFragmentBackground {
 
         @JavascriptInterface
         @SuppressWarnings("unused")
-        public void showHTML(final String html) {
+        public void showHTML(final String html,String leagueIdS) {
             String htm = html;
             Document doc = Jsoup.parse(html);
+            int leaguId = Integer.valueOf(leagueIdS);
 
             try {
                 Element newsList = doc.getElementsByClass("newsList").first();
-                List<News> allNewsTmp = new ArrayList<>();
                 Element ul_news_list = newsList.getElementsByTag("ul").first();
 
-                for (Element li : ul_news_list.getElementsByTag("li")) {
+                Elements lis = ul_news_list.getElementsByTag("li");
+                for (int i = lis.size() - 1; i >= 0; i--) {
+                    Element li = lis.get(i);
 
                     Element a = li.getElementsByTag("a").first();
                     Element img = a.getElementsByTag("img").first();
@@ -218,24 +234,24 @@ public class NewsListFragmentBackground {
                     news.setSubTitle(subTitle);
                     news.setTitle(title);
                     news.save();
+                    LeaguNews leaguNews = new LeaguNews();
+                    leaguNews.setLeaguId(leaguId);
+                    leaguNews.setNewsId(news.getId());
+                    leaguNews.setPageIdx(pageIdx);
+                    leaguNews.setIsSeen(true);
+                    leaguNews.save();
 
-                    LeaguNews leaguNews1 = new LeaguNews();
-                    leaguNews1.setLeaguId(leaguId);
-                    leaguNews1.setNewsId(news.getId());
-                    leaguNews1.setPageIdx(pageIdx);
-                    leaguNews1.setIsSeen(false);
-                    leaguNews1.save();
                     //adapter.notifyDataSetChanged();
                 }
+
 
             } catch (Exception e) {
                 String st = e.getMessage();
 
             } finally {
 
-                number++;
 //                Toast.makeText(MyApplication.APP_CTX,number+"",Toast.LENGTH_LONG).show();
-                if (number == 4)
+                if (number == 3)
                     GetAllDawriNewsReciever.completeWakefulIntent(GetAllDawriNewsReciever.instance.intent);
 
 
